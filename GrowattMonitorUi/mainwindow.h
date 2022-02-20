@@ -50,6 +50,7 @@ private:
     int lastFault = 0;
     int lastWarning = 0;
     int animationCount = 0;
+    int lastCollorPallate = 0;
     double gridInputActivePowerDouble = 0.0;
     double pvChargePowerDouble = 0.0;
     double outputActivePowerDouble = 0.0;
@@ -59,6 +60,7 @@ private:
     double rsdf( quint16 *array, int index, int scale = 10);
     void parseData(QByteArray array1, QByteArray array2);
     void hideArrows();
+    void setIcons();
 
 
 public slots:
@@ -67,9 +69,11 @@ public slots:
     void saveTimerEvent();
     void serialTimeoutTimerEvent();
     void animationTimerEvent();
+protected:
 private slots:
     void serialData();
     void on_pushButtonApply_clicked();
     void on_actionAbout_triggered();
+    bool event(QEvent *event);
 };
 #endif // MAINWINDOW_H

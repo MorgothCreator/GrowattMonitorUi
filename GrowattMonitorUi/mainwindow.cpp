@@ -29,6 +29,17 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&animationTimer, SIGNAL(timeout()), this, SLOT(animationTimerEvent()));
     animationTimer.start(500);
 
+    setIcons();
+}
+
+MainWindow::~MainWindow()
+{
+    if (serial.isOpen())
+        serial.close();
+    delete ui;
+}
+
+void MainWindow::setIcons() {
     QIcon icon;
     QPixmap pixmap;
     QImage i;
@@ -36,6 +47,11 @@ MainWindow::MainWindow(QWidget *parent)
     //QMessageBox messageBox;
     //messageBox.critical(0,"Error","Can't open " + QString::number(color.value(), 10));
     if(color.value() < 128) {
+        ui->pushButtonGrid->setIcon(QIcon(":/png/resources/grid.png"));
+        ui->pushButtonPv->setIcon(QIcon(":/png/resources/pannel.png"));
+        ui->pushButtonHouse->setIcon(QIcon(":/png/resources/house.png"));
+        ui->pushButtonBattery->setIcon(QIcon(":/png/resources/battery.png"));
+        ui->pushButtonInverter->setIcon(QIcon(":/png/resources/inverter.png"));
         icon = ui->pushButtonGrid->icon();
         pixmap = icon.pixmap(71, 71);
         i = pixmap.toImage();
@@ -70,14 +86,13 @@ MainWindow::MainWindow(QWidget *parent)
         i.invertPixels(QImage::InvertMode::InvertRgb);
         pixmap = pixmap.fromImage(i);
         ui->pushButtonInverter->setIcon(QIcon(pixmap));
+    } else {
+        ui->pushButtonGrid->setIcon(QIcon(":/png/resources/grid.png"));
+        ui->pushButtonPv->setIcon(QIcon(":/png/resources/pannel.png"));
+        ui->pushButtonHouse->setIcon(QIcon(":/png/resources/house.png"));
+        ui->pushButtonBattery->setIcon(QIcon(":/png/resources/battery.png"));
+        ui->pushButtonInverter->setIcon(QIcon(":/png/resources/inverter.png"));
     }
-}
-
-MainWindow::~MainWindow()
-{
-    if (serial.isOpen())
-        serial.close();
-    delete ui;
 }
 
 void getModbus(quint16 *array, int len) {
@@ -791,3 +806,10 @@ void MainWindow::on_actionAbout_triggered()
 
 }
 
+bool MainWindow::event(QEvent *event) {
+    if (event->type() == QEvent::ApplicationPaletteChange) {
+            setIcons();
+            event->ignore();
+    }
+    return QMainWindow::event(event);
+}
