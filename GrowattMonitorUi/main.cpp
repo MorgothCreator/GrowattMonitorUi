@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     f.setPointSize(9);
 #elif defined (Q_OS_WIN32)
 #else
-    f.setPointSize(9);
+    //f.setPointSize(9);
 #endif
     a.setFont(f);
     MainWindow w;

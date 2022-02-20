@@ -204,7 +204,8 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
 
     ui->lineEditGridVoltage->setText(gridVoltage);
     ui->lineEditGridFrequency->setText(gridFrequency);
-    ui->lineEditAcChargeCurrent->setText(strFormat(gridInputActivePower.toDouble() / gridVoltage.toDouble()));
+    ui->lineEditGridInputPower->setText(gridInputActivePower);
+    ui->lineEditGridChargeCurrent->setText(strFormat(gridChargeActivePower.toDouble() / gridVoltage.toDouble()));
 
     ui->lineEditBatteryVoltage->setText(batteryVoltage);
     ui->lineEditBatteryCapacity->setText(batterySoc);
@@ -668,45 +669,47 @@ void MainWindow::animationTimerEvent() {
             chargingLast = charging;
             animationCount = 0;
         }*/
-        if(charging) {
-            switch (animationCount) {
-            case 0:
-                ui->pushButtonArrowBatteryD_1->setVisible(true);
-            case 1:
-                ui->pushButtonArrowBatteryD_2->setVisible(true);
-            case 2:
-                ui->pushButtonArrowBatteryD_3->setVisible(true);
-            case 3:
-                ui->pushButtonArrowBatteryD_4->setVisible(true);
-                break;
-            case 7:
-                ui->pushButtonArrowBatteryD_4->setVisible(true);
-            case 6:
-                ui->pushButtonArrowBatteryD_3->setVisible(true);
-            case 5:
-                ui->pushButtonArrowBatteryD_2->setVisible(true);
-            case 4:
-                ui->pushButtonArrowBatteryD_1->setVisible(true);
-           }
-        } else {
-            switch (animationCount) {
-            case 4:
-                ui->pushButtonArrowBatteryU_1->setVisible(true);
-            case 5:
-                ui->pushButtonArrowBatteryU_2->setVisible(true);
-            case 6:
-                ui->pushButtonArrowBatteryU_3->setVisible(true);
-            case 7:
-                ui->pushButtonArrowBatteryU_4->setVisible(true);
-                break;
-            case 3:
-                ui->pushButtonArrowBatteryU_4->setVisible(true);
-            case 2:
-                ui->pushButtonArrowBatteryU_3->setVisible(true);
-            case 1:
-                ui->pushButtonArrowBatteryU_2->setVisible(true);
-            case 0:
-                ui->pushButtonArrowBatteryU_1->setVisible(true);
+        if(systemStatus != 11) {
+            if(charging) {
+                switch (animationCount) {
+                case 0:
+                    ui->pushButtonArrowBatteryD_1->setVisible(true);
+                case 1:
+                    ui->pushButtonArrowBatteryD_2->setVisible(true);
+                case 2:
+                    ui->pushButtonArrowBatteryD_3->setVisible(true);
+                case 3:
+                    ui->pushButtonArrowBatteryD_4->setVisible(true);
+                    break;
+                case 7:
+                    ui->pushButtonArrowBatteryD_4->setVisible(true);
+                case 6:
+                    ui->pushButtonArrowBatteryD_3->setVisible(true);
+                case 5:
+                    ui->pushButtonArrowBatteryD_2->setVisible(true);
+                case 4:
+                    ui->pushButtonArrowBatteryD_1->setVisible(true);
+               }
+            } else {
+                switch (animationCount) {
+                case 4:
+                    ui->pushButtonArrowBatteryU_1->setVisible(true);
+                case 5:
+                    ui->pushButtonArrowBatteryU_2->setVisible(true);
+                case 6:
+                    ui->pushButtonArrowBatteryU_3->setVisible(true);
+                case 7:
+                    ui->pushButtonArrowBatteryU_4->setVisible(true);
+                    break;
+                case 3:
+                    ui->pushButtonArrowBatteryU_4->setVisible(true);
+                case 2:
+                    ui->pushButtonArrowBatteryU_3->setVisible(true);
+                case 1:
+                    ui->pushButtonArrowBatteryU_2->setVisible(true);
+                case 0:
+                    ui->pushButtonArrowBatteryU_1->setVisible(true);
+                }
             }
         }
 
@@ -808,8 +811,8 @@ void MainWindow::on_actionAbout_triggered()
 
 bool MainWindow::event(QEvent *event) {
     if (event->type() == QEvent::ApplicationPaletteChange) {
-            setIcons();
-            event->ignore();
+        setIcons();
+        event->ignore();
     }
     return QMainWindow::event(event);
 }
