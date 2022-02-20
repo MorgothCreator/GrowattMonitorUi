@@ -55,4 +55,6 @@ compile_commands.json
 
 *.zip
 *.exe
+*.app
 /Build
+.DS_Store

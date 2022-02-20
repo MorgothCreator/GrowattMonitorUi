@@ -1,17 +1,27 @@
-QT	    += core gui
-QT          += serialport
+QT	    += core gui serialport
 
 unix:!macx {
+TARGET = ../../GrowattMonitor/GrowattMonitorUI-Linux/GrowattMonitorUI-Linux
 }
 macx: {
+TARGET = ../GrowattMonitor/GrowattMonitorUI-MacOsX
+# CONFIG += QMAKE_APPLE_DEVICE_ARCHS="x86_64 x86_64h arm64"
+CONFIG += QMAKE_APPLE_DEVICE_ARCHS="x86_64 x86_64h"
+CONFIG += app_bundle
+CONFIG += qt
+CONFIG += sdk_no_version_check
+DEFINES += MY_LIB_PATH=/
+MACDEPLOY = `echo $$QMAKE_QMAKE | sed 's/qmake/macdeployqt/g'`
+QMAKE_POST_LINK = $$MACDEPLOY $$OUT_PWD/$$TARGET\.app -qmldir=$$PWD -verbose=3
 }
 win32: {
-TARGET = ../../GrowattMonitor/GrowattMonitorUI
+TARGET = ../../GrowattMonitor/GrowattMonitorUI-Windows/GrowattMonitorUI-Windows
 }
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
+
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -38,4 +48,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     resources.qrc
 
-RC_ICONS = icon.ico
+RC_ICONS = resources/icon.ico
+ICON = icon.icns
