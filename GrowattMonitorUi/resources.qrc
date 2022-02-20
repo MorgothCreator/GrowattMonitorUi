@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/png">
+        <file>resources/battery.png</file>
+        <file>resources/grid.png</file>
+        <file>resources/house.png</file>
+        <file>resources/inverter.png</file>
+        <file>resources/pannel.png</file>
+        <file>resources/arrow_d.png</file>
+        <file>resources/arrow_r.png</file>
+        <file>resources/arrow_u.png</file>
+        <file>resources/arrow_l.png</file>
+        <file>resources/icon.png</file>
+    </qresource>
+</RCC>
