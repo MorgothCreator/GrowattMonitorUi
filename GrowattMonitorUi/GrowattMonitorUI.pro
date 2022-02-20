@@ -5,8 +5,7 @@ TARGET = ../../GrowattMonitor/GrowattMonitorUI-Linux/GrowattMonitorUI-Linux
 }
 macx: {
 TARGET = ../GrowattMonitor/GrowattMonitorUI-MacOsX
-# CONFIG += QMAKE_APPLE_DEVICE_ARCHS="x86_64 x86_64h arm64"
-CONFIG += QMAKE_APPLE_DEVICE_ARCHS="x86_64 x86_64h"
+CONFIG += QMAKE_APPLE_DEVICE_ARCHS="x86_64 x86_64h arm64"
 CONFIG += app_bundle
 CONFIG += qt
 CONFIG += sdk_no_version_check

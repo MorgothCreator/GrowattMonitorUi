@@ -55,6 +55,7 @@ compile_commands.json
 
 *.zip
 *.exe
-*.app
 /Build
+Frameworks
+MacOs
 .DS_Store
