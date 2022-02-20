@@ -1995,7 +1995,7 @@
     <widget class="QLabel" name="label_79">
      <property name="geometry">
       <rect>
-       <x>260</x>
+       <x>265</x>
        <y>350</y>
        <width>16</width>
        <height>16</height>
@@ -2092,7 +2092,7 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_4">
+    <widget class="QPushButton" name="pushButtonBattery">
      <property name="geometry">
       <rect>
        <x>150</x>
@@ -2100,6 +2100,9 @@
        <width>71</width>
        <height>71</height>
       </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string/>
@@ -2205,7 +2208,7 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_5">
+    <widget class="QPushButton" name="pushButtonInverter">
      <property name="geometry">
       <rect>
        <x>150</x>
@@ -2213,6 +2216,9 @@
        <width>71</width>
        <height>71</height>
       </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string/>
@@ -2534,7 +2540,7 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="pushButtonHouse">
      <property name="geometry">
       <rect>
        <x>300</x>
@@ -2542,6 +2548,9 @@
        <width>71</width>
        <height>71</height>
       </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string/>
@@ -2563,7 +2572,7 @@
     <widget class="QLineEdit" name="lineEditOutputActivePower_2">
      <property name="geometry">
       <rect>
-       <x>310</x>
+       <x>315</x>
        <y>250</y>
        <width>41</width>
        <height>22</height>
@@ -2666,7 +2675,7 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_3">
+    <widget class="QPushButton" name="pushButtonPv">
      <property name="geometry">
       <rect>
        <x>150</x>
@@ -2674,6 +2683,9 @@
        <width>71</width>
        <height>71</height>
       </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string/>
@@ -2695,7 +2707,7 @@
     <widget class="QLineEdit" name="lineEditBatteryCapacity_2">
      <property name="geometry">
       <rect>
-       <x>210</x>
+       <x>220</x>
        <y>350</y>
        <width>41</width>
        <height>22</height>
@@ -2714,7 +2726,7 @@
     <widget class="QLabel" name="label_77">
      <property name="geometry">
       <rect>
-       <x>270</x>
+       <x>265</x>
        <y>50</y>
        <width>16</width>
        <height>16</height>
@@ -2724,7 +2736,7 @@
       <string>W</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="pushButtonGrid">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -2732,6 +2744,9 @@
        <width>71</width>
        <height>71</height>
       </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
      </property>
      <property name="text">
       <string/>
@@ -2745,6 +2760,9 @@
        <width>64</width>
        <height>64</height>
       </size>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
      </property>
      <property name="flat">
       <bool>true</bool>
@@ -2922,7 +2940,7 @@
      <x>0</x>
      <y>0</y>
      <width>1282</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">

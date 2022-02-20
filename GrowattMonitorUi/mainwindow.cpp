@@ -28,6 +28,49 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(&animationTimer, SIGNAL(timeout()), this, SLOT(animationTimerEvent()));
     animationTimer.start(500);
+
+    QIcon icon;
+    QPixmap pixmap;
+    QImage i;
+    QColor color = QPalette().color(QPalette::Window);
+    //QMessageBox messageBox;
+    //messageBox.critical(0,"Error","Can't open " + QString::number(color.value(), 10));
+    if(color.value() < 128) {
+        icon = ui->pushButtonGrid->icon();
+        pixmap = icon.pixmap(71, 71);
+        i = pixmap.toImage();
+        i.invertPixels(QImage::InvertMode::InvertRgb);
+        pixmap = pixmap.fromImage(i);
+        ui->pushButtonGrid->setIcon(QIcon(pixmap));
+
+        icon = ui->pushButtonPv->icon();
+        pixmap = icon.pixmap(71, 71);
+        i = pixmap.toImage();
+        i.invertPixels(QImage::InvertMode::InvertRgb);
+        pixmap = pixmap.fromImage(i);
+        ui->pushButtonPv->setIcon(QIcon(pixmap));
+
+        icon = ui->pushButtonHouse->icon();
+        pixmap = icon.pixmap(71, 71);
+        i = pixmap.toImage();
+        i.invertPixels(QImage::InvertMode::InvertRgb);
+        pixmap = pixmap.fromImage(i);
+        ui->pushButtonHouse->setIcon(QIcon(pixmap));
+
+        icon = ui->pushButtonBattery->icon();
+        pixmap = icon.pixmap(71, 71);
+        i = pixmap.toImage();
+        i.invertPixels(QImage::InvertMode::InvertRgb);
+        pixmap = pixmap.fromImage(i);
+        ui->pushButtonBattery->setIcon(QIcon(pixmap));
+
+        icon = ui->pushButtonInverter->icon();
+        pixmap = icon.pixmap(71, 71);
+        i = pixmap.toImage();
+        i.invertPixels(QImage::InvertMode::InvertRgb);
+        pixmap = pixmap.fromImage(i);
+        ui->pushButtonInverter->setIcon(QIcon(pixmap));
+    }
 }
 
 MainWindow::~MainWindow()
@@ -115,7 +158,7 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
     QString loadPercent = QString().number(rssf(inputHalf, 27));
     gridInputActivePowerDouble = rsdf(inputHalf, 36);
     QString gridInputActivePower = QString().number(gridInputActivePowerDouble);
-    QString gridInputAparentPower = QString().number(rsdf(inputHalf, 38));
+    //QString gridInputAparentPower = QString().number(rsdf(inputHalf, 38));
     int faultCode = inputHalf[42];
     int warningCode = inputHalf[43];
     QString pvPowerTodayKw = QString().number(rsdf(inputHalf, 48));
@@ -146,7 +189,7 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
 
     ui->lineEditGridVoltage->setText(gridVoltage);
     ui->lineEditGridFrequency->setText(gridFrequency);
-    ui->lineEditAcChargeCurrent->setText(gridInputActivePower);
+    ui->lineEditAcChargeCurrent->setText(strFormat(gridInputActivePower.toDouble() / gridVoltage.toDouble()));
 
     ui->lineEditBatteryVoltage->setText(batteryVoltage);
     ui->lineEditBatteryCapacity->setText(batterySoc);
