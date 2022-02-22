@@ -15,3 +15,7 @@ Further, I will hack/reprogram the ShineWifi-F module with my own application to
 <table><tr><td>
   <img src="/Resources/GrowattMonitorUI.png">
 </td></tr></table>
+
+<table><tr><td>
+  <img src="/Resources/GrowattMonitorUIGraph.png">
+</td></tr></table>
