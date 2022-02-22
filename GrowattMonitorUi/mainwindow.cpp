@@ -25,20 +25,28 @@ MainWindow::MainWindow(QWidget *parent)
     ui->comboBoxReadInterval->addItems({"0.5", "1", "2", "5", "10"});
     ui->comboBoxRecordInterval->addItems({"1", "2.5", "5", "10"});
     ui->comboBoxRecordInterval->setCurrentText("2.5");
-    connect(&rfshPortStatusTimer, SIGNAL(timeout()), this, SLOT(rfshPortStatusTimerEvent()));
-    rfshPortStatusTimer.start(500);
-    connect(&rfshTimer, SIGNAL(timeout()), this, SLOT(rfshTimerEvent()));
-    connect(&saveTimer, SIGNAL(timeout()), this, SLOT(saveTimerEvent()));
-    saveTimer.start(1000);
-    connect(&serialTimeoutTimer, SIGNAL(timeout()), this, SLOT(serialTimeoutTimerEvent()));
-    serialTimeoutTimer.setInterval(10);
-    connect(&serial, SIGNAL(readyRead()), this, SLOT(serialData()));
+    rfshTimer = new QTimer;
+    saveTimer = new QTimer;
+    appenddatabaseTimer = new QTimer;
+    rfshPortStatusTimer = new QTimer;
+    serialTimeoutTimer = new QTimer;
+    animationTimer = new QTimer;
 
-    connect(&animationTimer, SIGNAL(timeout()), this, SLOT(animationTimerEvent()));
-    animationTimer.start(500);
+    connect(rfshPortStatusTimer, SIGNAL(timeout()), this, SLOT(rfshPortStatusTimerEvent()));
+    rfshPortStatusTimer->start(500);
+    connect(rfshTimer, SIGNAL(timeout()), this, SLOT(rfshTimerEvent()));
+    connect(saveTimer, SIGNAL(timeout()), this, SLOT(saveTimerEvent()));
+    saveTimer->start(1000);
+    connect(serialTimeoutTimer, SIGNAL(timeout()), this, SLOT(serialTimeoutTimerEvent()));
+    serial = new QSerialPort();
+    serialTimeoutTimer->setInterval(10);
+    connect(serial, SIGNAL(readyRead()), this, SLOT(serialData()));
 
-    appenddatabaseTimer.setInterval(150000);
-    connect(&appenddatabaseTimer, SIGNAL(timeout()), this, SLOT(appenddatabaseTimerEvent()));
+    connect(animationTimer, SIGNAL(timeout()), this, SLOT(animationTimerEvent()));
+    animationTimer->start(500);
+
+    appenddatabaseTimer->setInterval(150000);
+    connect(appenddatabaseTimer, SIGNAL(timeout()), this, SLOT(appenddatabaseTimerEvent()));
 
 
     setIcons();
@@ -46,10 +54,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    if (serial.isOpen())
-        serial.close();
-    chart->close();
-    delete chart;
+    if (serial->isOpen())
+        serial->close();
     delete ui;
 }
 
@@ -477,27 +483,27 @@ void MainWindow::on_pushButtonApply_clicked()
 {
     deviceId = ui->spinBoxDeviceId->value();
     rfshTimerInterval = (int)(ui->comboBoxReadInterval->itemText(ui->comboBoxReadInterval->currentIndex()).toDouble() * 1000);
-    rfshTimer.setInterval(rfshTimerInterval);
-    rfshTimer.start();
+    rfshTimer->setInterval(rfshTimerInterval);
+    rfshTimer->start();
     saveTimerInterval = (int)(ui->comboBoxRecordInterval->itemText(ui->comboBoxRecordInterval->currentIndex()).toDouble() * 60000);
-    saveTimer.setInterval(saveTimerInterval);
+    saveTimer->setInterval(saveTimerInterval);
     QString newName = ui->comboBoxPort->itemText(ui->comboBoxPort->currentIndex());
-    if(serial.isOpen() && QString::compare(serial.portName(), newName)) {
-        serial.close();
+    if(serial->isOpen() && QString::compare(serial->portName(), newName)) {
+        serial->close();
     }
-    if(!serial.isOpen() || QString::compare(serial.portName(), newName)) {
-        if(!appenddatabaseTimer.isActive()) {
-            appenddatabaseTimer.start();
+    if(!serial->isOpen() || QString::compare(serial->portName(), newName)) {
+        if(!appenddatabaseTimer->isActive()) {
+            appenddatabaseTimer->start();
         }
-        serial.setPortName(newName);
-        serial.setBaudRate(QSerialPort::Baud9600);
-        serial.setDataBits(QSerialPort::Data8);
-        serial.setParity(QSerialPort::NoParity);
-        serial.setStopBits(QSerialPort::OneStop);
-        serial.setFlowControl(QSerialPort::NoFlowControl);
-        if (!serial.open(QIODevice::ReadWrite)) {
+        serial->setPortName(newName);
+        serial->setBaudRate(QSerialPort::Baud9600);
+        serial->setDataBits(QSerialPort::Data8);
+        serial->setParity(QSerialPort::NoParity);
+        serial->setStopBits(QSerialPort::OneStop);
+        serial->setFlowControl(QSerialPort::NoFlowControl);
+        if (!serial->open(QIODevice::ReadWrite)) {
             QMessageBox messageBox;
-            messageBox.critical(0,"Error","Can't open " + serial.portName() + ", error code: " + serial.errorString());
+            messageBox.critical(0,"Error","Can't open " + serial->portName() + ", error code: " + serial->errorString());
             return;
         }
     }
@@ -524,8 +530,8 @@ unsigned int CRC16_2(unsigned char *buf, int len)
 }
 
 void MainWindow::rfshTimerEvent() {
-    rfshTimer.stop();
-    if(serial.isOpen()) {
+    rfshTimer->stop();
+    if(serial->isOpen()) {
         holdingReg.clear();
         inputReg.clear();
         QByteArray array;
@@ -539,7 +545,7 @@ void MainWindow::rfshTimerEvent() {
         quint16 crc = CRC16_2((unsigned char *)array.mid(0, 6).data(), 6);
         array[6] = crc;
         array[7] = crc >> 8;
-        serial.write(array);
+        serial->write(array);
     }
 }
 
@@ -548,7 +554,7 @@ void MainWindow::saveTimerEvent() {
 }
 
 void MainWindow::rfshPortStatusTimerEvent() {
-    if (serial.isOpen())
+    if (serial->isOpen())
         ui->labelPortStatus->setText("Oppened");
     else {
         ui->labelPortStatus->setText("Closed");
@@ -557,13 +563,13 @@ void MainWindow::rfshPortStatusTimerEvent() {
 }
 
 void MainWindow::serialData() {
-    receiveArray.append(serial.readAll());
-    serialTimeoutTimer.stop();
-    serialTimeoutTimer.start();
+    receiveArray.append(serial->readAll());
+    serialTimeoutTimer->stop();
+    serialTimeoutTimer->start();
 }
 
 void MainWindow::serialTimeoutTimerEvent() {
-    serialTimeoutTimer.stop();
+    serialTimeoutTimer->stop();
     //QMessageBox messageBox;
     //messageBox.information(0,"Information", receiveArray.toHex());
     if (sentCommand == 3) {
@@ -584,7 +590,7 @@ void MainWindow::serialTimeoutTimerEvent() {
             quint16 crc = CRC16_2((unsigned char *)array.mid(0, 6).data(), 6);
             array[6] = crc;
             array[7] = crc >> 8;
-            serial.write(array);
+            serial->write(array);
         } else if (sentAddress == 0x2D) {
             sentAddress = 0x54;
             holdingReg.append(receiveArray.mid(3, 90));
@@ -602,7 +608,7 @@ void MainWindow::serialTimeoutTimerEvent() {
             quint16 crc = CRC16_2((unsigned char *)array.mid(0, 6).data(), 6);
             array[6] = crc;
             array[7] = crc >> 8;
-            serial.write(array);
+            serial->write(array);
         } else if (sentAddress == 0x54) {
             sentCommand = 4;
             sentAddress = 0x0;
@@ -621,7 +627,7 @@ void MainWindow::serialTimeoutTimerEvent() {
             quint16 crc = CRC16_2((unsigned char *)array.mid(0, 6).data(), 6);
             array[6] = crc;
             array[7] = crc >> 8;
-            serial.write(array);
+            serial->write(array);
         }
     } else if (sentCommand == 4) {
         if (sentAddress == 0) {
@@ -641,7 +647,7 @@ void MainWindow::serialTimeoutTimerEvent() {
             quint16 crc = CRC16_2((unsigned char *)array.mid(0, 6).data(), 6);
             array[6] = crc;
             array[7] = crc >> 8;
-            serial.write(array);
+            serial->write(array);
         } else if (sentAddress == 0x2D) {
             sentCommand = 3;
             sentAddress = 0x0;
@@ -650,7 +656,7 @@ void MainWindow::serialTimeoutTimerEvent() {
             msg4_2.append(receiveArray);
             receiveArray.clear();
             parseData(holdingReg, inputReg);
-            rfshTimer.start();
+            rfshTimer->start();
             dataReceived = true;
         }
     }
@@ -685,7 +691,7 @@ void MainWindow::hideArrows() {
 
 void MainWindow::animationTimerEvent() {
     hideArrows();
-    if(serial.isOpen() && dataReceived) {
+    if(serial->isOpen() && dataReceived) {
         animationCount++;
         if(animationCount > 7)
             animationCount = 0;
@@ -839,8 +845,8 @@ bool MainWindow::event(QEvent *event) {
 }
 
 void MainWindow::on_actionAbout_triggered() {
-    About about;
-    about.exec();
+    about = new About();
+    about->exec();
 }
 
 void MainWindow::on_actionChart_triggered() {

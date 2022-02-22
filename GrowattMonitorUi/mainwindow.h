@@ -23,13 +23,13 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    QSerialPort serial;
-    QTimer rfshTimer;
-    QTimer saveTimer;
-    QTimer appenddatabaseTimer;
-    QTimer rfshPortStatusTimer;
-    QTimer serialTimeoutTimer;
-    QTimer animationTimer;
+    QSerialPort *serial;
+    QTimer *rfshTimer;
+    QTimer *saveTimer;
+    QTimer *appenddatabaseTimer;
+    QTimer *rfshPortStatusTimer;
+    QTimer *serialTimeoutTimer;
+    QTimer *animationTimer;
 
     int deviceId = 1;
     int rfshTimerInterval = 500;
@@ -61,6 +61,7 @@ private:
     quint16 systemStatus = 0;
 
     PowerChart *chart;
+    About *about;
 
     double rssf( quint16 *array, int index, int scale = 10);
     double rsdf( quint16 *array, int index, int scale = 10);
