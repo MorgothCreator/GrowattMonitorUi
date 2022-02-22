@@ -23,11 +23,13 @@ PowerChart::PowerChart(QWidget *parent) :
     chartPwr = new QChart();
     chartViewPwr = new QChartView(this);
     chartViewPwr->setChart(chartPwr);
+    chartViewPwr->setRenderHint(QPainter::Antialiasing);
     chartViewPwr->setGeometry(170, 5, 842, 430);
 
     chartTemp = new QChart();
     chartViewTemp = new QChartView(this);
     chartViewTemp->setChart(chartTemp);
+    chartViewTemp->setRenderHint(QPainter::Antialiasing);
     chartViewTemp->setGeometry(170, 435, 842, 200);
 
 
@@ -293,14 +295,17 @@ void PowerChart::refreshChart() {
     series_DcDcTemp->append(pointList_DcDcTemp);
 
     QDateTime dT;
-    dateTimeAxisXPwr->setRange(dT.fromMSecsSinceEpoch(timeStampStart), dT.fromMSecsSinceEpoch(timeStamp));
     if(ui->checkBoxFixedChart->isChecked()) {
-        valueAxisY_InPwr->setRange(0, 5000);
-        valueAxisY_ChgPwr->setRange(0, 5000);
+        dateTimeAxisXPwr->setRange(QDateTime().fromString(ui->comboBoxFileName->currentText(), "yyyy-MM-dd"), QDateTime().fromString(ui->comboBoxFileName->currentText(), "yyyy-MM-dd").addDays(1));
+        dateTimeAxisXTemp->setRange(QDateTime().fromString(ui->comboBoxFileName->currentText(), "yyyy-MM-dd"), QDateTime().fromString(ui->comboBoxFileName->currentText(), "yyyy-MM-dd").addDays(1));
+        valueAxisY_InPwr->setRange(0, 6000);
+        valueAxisY_ChgPwr->setRange(0, 6000);
         valueAxisY_PvPwr->setRange(0, 6000);
         valueAxisY_BatCap->setRange(0, 100);
-        valueAxisY_OutPwr->setRange(0, 5000);
+        valueAxisY_OutPwr->setRange(0, 6000);
     } else {
+        dateTimeAxisXPwr->setRange(dT.fromMSecsSinceEpoch(timeStampStart), dT.fromMSecsSinceEpoch(timeStamp));
+        dateTimeAxisXTemp->setRange(dT.fromMSecsSinceEpoch(timeStampStart), dT.fromMSecsSinceEpoch(timeStamp));
         valueAxisY_InPwr->setRange(0, maximumGridInputPower == 5.0 ? 0 : maximumGridInputPower);
         valueAxisY_ChgPwr->setRange(0, maximumGridChargePower == 5.0 ? 0 : maximumGridChargePower);
         valueAxisY_PvPwr->setRange(0, maximumPvPower == 5.0 ? 0 : maximumPvPower);
@@ -308,7 +313,6 @@ void PowerChart::refreshChart() {
         valueAxisY_OutPwr->setRange(0, maximumOutputPower == 5.0 ? 0 : maximumOutputPower);
     }
 
-    dateTimeAxisXTemp->setRange(dT.fromMSecsSinceEpoch(timeStampStart), dT.fromMSecsSinceEpoch(timeStamp));
     bool tempMinInvLower = minimumInverterTemperature < minimumDcDcTemperature;
     bool tempManInvBigget = maximumInverterTemperature > maximumDcDcTemperature;
     valueAxisY_InvTemp->setRange(tempMinInvLower ? minimumInverterTemperature : minimumDcDcTemperature,
