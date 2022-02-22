@@ -1,22 +1,30 @@
 #include <QMessageBox>
+#include <QDir>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "about.h"
+#include "static.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    Static::setDatabasePath(QDir::homePath() + "/.GrowattMonitorDatabase/");
+    QDir dir;
+    dir.setPath(Static::getDatabasePath());
+    if (!dir.exists()) {
+        dir.mkpath(Static::getDatabasePath());
+    }
     hideArrows();
     const auto infos = QSerialPortInfo::availablePorts();
     for (const QSerialPortInfo &info: infos ) {
         ui->comboBoxPort->addItem(info.portName());
     }
     ui->comboBoxReadInterval->addItems({"0.5", "1", "2", "5", "10"});
-    ui->comboBoxRecordInterval->addItems({"1", "2", "5", "10"});
+    ui->comboBoxRecordInterval->addItems({"1", "2.5", "5", "10"});
+    ui->comboBoxRecordInterval->setCurrentText("2.5");
     connect(&rfshPortStatusTimer, SIGNAL(timeout()), this, SLOT(rfshPortStatusTimerEvent()));
     rfshPortStatusTimer.start(500);
     connect(&rfshTimer, SIGNAL(timeout()), this, SLOT(rfshTimerEvent()));
@@ -29,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&animationTimer, SIGNAL(timeout()), this, SLOT(animationTimerEvent()));
     animationTimer.start(500);
 
+    appenddatabaseTimer.setInterval(150000);
+    connect(&appenddatabaseTimer, SIGNAL(timeout()), this, SLOT(appenddatabaseTimerEvent()));
+
+
     setIcons();
 }
 
@@ -36,6 +48,8 @@ MainWindow::~MainWindow()
 {
     if (serial.isOpen())
         serial.close();
+    chart->close();
+    delete chart;
     delete ui;
 }
 
@@ -114,6 +128,8 @@ QString strFormat(double value) {
 }
 
 void MainWindow::parseData(QByteArray holding, QByteArray input) {
+    if(holdingReg.count() > 270 || holdingReg.count() < 270 || inputReg.count() > 180 || inputReg.count() < 180)
+        return;
     quint16 holdingHalf[holding.size() / 2];
     memcpy(holdingHalf, holding, holding.size());
     getModbus(holdingHalf, holding.size() / 2);
@@ -205,7 +221,7 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
     ui->lineEditGridVoltage->setText(gridVoltage);
     ui->lineEditGridFrequency->setText(gridFrequency);
     ui->lineEditGridInputPower->setText(gridInputActivePower);
-    ui->lineEditGridChargeCurrent->setText(strFormat(gridChargeActivePower.toDouble() / gridVoltage.toDouble()));
+    ui->lineEditGridChargeCurrent->setText(gridChargeActivePower);
 
     ui->lineEditBatteryVoltage->setText(batteryVoltage);
     ui->lineEditBatteryCapacity->setText(batterySoc);
@@ -230,7 +246,7 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
     QString gridRatedFrequencySet = QString().number(rssf(holdingHalf, 91));
     QString batteryVoltageSet = QString().number(rssf(holdingHalf, 92));
     QString maxChargeCurrentSet = QString().number(rssf(holdingHalf, 34, 1));
-    QString acChargeCurrentSet = QString().number(rssf(holdingHalf, 94));
+    QString acChargeCurrentSet = QString().number(rssf(holdingHalf, 99, 1));
 
     ui->lineEditGridRatedVoltage->setText(gridRatedVoltageSet);
     ui->lineEditGridRatedFrequency->setText(gridRatedFrequencySet);
@@ -450,6 +466,11 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
         ui->lineEditChargePriority->setText("?");
         break;
     }
+
+    Static::sampleAppend(gridInputActivePower, gridChargeActivePower, pvChargePower, batterySoc, outputActivePower,
+                              inverterTemperature, dcDcTemperature,
+                                 ui->lineEditState->text(),
+                                 faultStr, warningStr);
 }
 
 void MainWindow::on_pushButtonApply_clicked()
@@ -465,6 +486,9 @@ void MainWindow::on_pushButtonApply_clicked()
         serial.close();
     }
     if(!serial.isOpen() || QString::compare(serial.portName(), newName)) {
+        if(!appenddatabaseTimer.isActive()) {
+            appenddatabaseTimer.start();
+        }
         serial.setPortName(newName);
         serial.setBaudRate(QSerialPort::Baud9600);
         serial.setDataBits(QSerialPort::Data8);
@@ -801,13 +825,10 @@ void MainWindow::animationTimerEvent() {
     }
 }
 
-
-void MainWindow::on_actionAbout_triggered()
-{
-    About about;
-    about.exec();
-
+void MainWindow::appenddatabaseTimerEvent() {
+    Static::databaseAppent();
 }
+
 
 bool MainWindow::event(QEvent *event) {
     if (event->type() == QEvent::ApplicationPaletteChange) {
@@ -816,3 +837,14 @@ bool MainWindow::event(QEvent *event) {
     }
     return QMainWindow::event(event);
 }
+
+void MainWindow::on_actionAbout_triggered() {
+    About about;
+    about.exec();
+}
+
+void MainWindow::on_actionChart_triggered() {
+    chart = new PowerChart();
+    chart->show();
+}
+

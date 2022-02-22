@@ -10,6 +10,24 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>571</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>571</width>
+    <height>300</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>About</string>
   </property>
@@ -61,7 +79,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Developen using Qt community edition</string>
+    <string>Developen using Qt 6.2.3 community edition</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
@@ -74,7 +92,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Version 1.1</string>
+    <string>Version 1.2</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">

@@ -6,6 +6,9 @@
 #include <QSerialPortInfo>
 #include <QTimer>
 
+#include "about.h"
+#include "powerchart.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -23,6 +26,7 @@ private:
     QSerialPort serial;
     QTimer rfshTimer;
     QTimer saveTimer;
+    QTimer appenddatabaseTimer;
     QTimer rfshPortStatusTimer;
     QTimer serialTimeoutTimer;
     QTimer animationTimer;
@@ -56,6 +60,8 @@ private:
     double outputActivePowerDouble = 0.0;
     quint16 systemStatus = 0;
 
+    PowerChart *chart;
+
     double rssf( quint16 *array, int index, int scale = 10);
     double rsdf( quint16 *array, int index, int scale = 10);
     void parseData(QByteArray array1, QByteArray array2);
@@ -69,11 +75,13 @@ public slots:
     void saveTimerEvent();
     void serialTimeoutTimerEvent();
     void animationTimerEvent();
+    void appenddatabaseTimerEvent();
 protected:
 private slots:
     void serialData();
     void on_pushButtonApply_clicked();
     void on_actionAbout_triggered();
     bool event(QEvent *event);
+    void on_actionChart_triggered();
 };
 #endif // MAINWINDOW_H

@@ -1,4 +1,4 @@
-QT	    += core gui serialport
+QT	    += core gui charts serialport
 
 unix:!macx {
 TARGET = ../../GrowattMonitor/GrowattMonitorUI-Linux/GrowattMonitorUI-Linux
@@ -29,15 +29,20 @@ CONFIG += c++11
 SOURCES += \
     about.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    powerchart.cpp \
+    static.cpp
 
 HEADERS += \
     about.h \
-    mainwindow.h
+    mainwindow.h \
+    powerchart.h \
+    static.h
 
 FORMS += \
     about.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    powerchart.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
