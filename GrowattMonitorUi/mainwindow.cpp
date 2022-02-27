@@ -227,7 +227,7 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
     ui->lineEditGridVoltage->setText(gridVoltage);
     ui->lineEditGridFrequency->setText(gridFrequency);
     ui->lineEditGridInputPower->setText(gridInputActivePower);
-    ui->lineEditGridChargeCurrent->setText(gridChargeActivePower);
+    ui->lineEditGridChargeCurrent->setText(strFormat(gridChargeActivePower.toDouble() / batteryVoltage.toDouble()));
 
     ui->lineEditBatteryVoltage->setText(batteryVoltage);
     ui->lineEditBatteryCapacity->setText(batterySoc);
@@ -764,7 +764,7 @@ void MainWindow::animationTimerEvent() {
                 ui->pushButtonArrowPannel_1->setVisible(true);
             }
         }
-        if(systemStatus == 6 || systemStatus == 10 || systemStatus == 11) {
+        if(systemStatus == 6 || systemStatus == 10 || systemStatus == 11 || ui->lineEditGridChargeCurrent->text().toDouble() != 0) {
             if (acDirectionOut) {
                 switch (animationCount) {
                 case 0:
