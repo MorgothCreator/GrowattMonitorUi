@@ -79,7 +79,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Developen using Qt 6.2.3 community edition</string>
+    <string>Developed using Qt 6.2.3 community edition</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">

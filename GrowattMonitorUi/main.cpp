@@ -4,6 +4,10 @@
 
 int main(int argc, char *argv[])
 {
+    if(argc > 1)
+        qDebug() << "argv[1]" << argv[1];
+    if(argc > 2)
+        qDebug() << "argv[2]" << argv[2];
     QApplication a(argc, argv);
     QFont f = a.font();
     f.setFamily("Monaco");

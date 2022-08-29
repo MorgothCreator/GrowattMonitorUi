@@ -12,11 +12,22 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     Static::setDatabasePath(QDir::homePath() + "/.GrowattMonitorDatabase/");
+    Static::setSamplePath(Static::getDatabasePath() + "sample/");
+    Static::setSettingsPath(Static::getDatabasePath() + "settings/");
     QDir dir;
     dir.setPath(Static::getDatabasePath());
     if (!dir.exists()) {
         dir.mkpath(Static::getDatabasePath());
     }
+    dir.setPath(Static::getSamplePath());
+    if (!dir.exists()) {
+        dir.mkpath(Static::getSamplePath());
+    }
+    dir.setPath(Static::getSettingsPath());
+    if (!dir.exists()) {
+        dir.mkpath(Static::getSettingsPath());
+    }
+
     hideArrows();
     const auto infos = QSerialPortInfo::availablePorts();
     for (const QSerialPortInfo &info: infos ) {
@@ -50,6 +61,15 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     setIcons();
+
+    QFile f(Static::getSettingsPath()  + "port");
+    if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ui->comboBoxPort->setCurrentText(f.readAll());
+        f.close();
+    }
+    on_pushButtonApply_clicked();
+
+    webServer = new WebServer(this);
 }
 
 MainWindow::~MainWindow()
@@ -175,7 +195,7 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
             " U" + QString((QChar)((modelNumberInt & 0x000F00) >> 8)) +
             " M" + QString((QChar)((modelNumberInt & 0x0000F0) >> 4)) +
             " S" + QString((QChar)(modelNumberInt & 0x00000F));
-
+    Q_UNUSED(modelNumber)
     QString batteryVoltage = QString().number(rssf(inputHalf, 17, 100));
     QString batterySoc = QString().number(rssf(inputHalf, 18, 1));
     QString pvVoltage = QString().number(rssf(inputHalf, 1));
@@ -186,6 +206,7 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
     QString outputAparentPower = QString().number(rsdf(inputHalf, 11));
     QString gridChargeActivePower = QString().number(rsdf(inputHalf, 13));
     QString gridChargeAparentPower = QString().number(rsdf(inputHalf, 15));
+    Q_UNUSED(gridChargeAparentPower)
     QString gridVoltage = QString().number(rssf(inputHalf, 20));
     QString gridFrequency = QString().number(rssf(inputHalf, 21, 100));
     QString outputVoltage = QString().number(rssf(inputHalf, 22));
@@ -205,11 +226,8 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
     QString gridDischargeTodayKw = QString().number(rsdf(inputHalf, 64));
     QString gridDischargeTotalKw = QString().number(rsdf(inputHalf, 66));
     charging = rsdf(inputHalf, 77) < 0;
-    QString batteryDisChrPower = 0;
-    if(!charging)
-        batteryDisChrPower = QString().number(rsdf(inputHalf, 77));
-    else
-        batteryDisChrPower = QString().number(0 - rsdf(inputHalf, 77));
+
+    batteryDisChrPowerDouble = rsdf(inputHalf, 77);
 
     ui->lineEditGridDischargeToday->setText(gridDischargeTodayKw);
     ui->lineEditGridDischargeTotal->setText(gridDischargeTotalKw);
@@ -232,8 +250,8 @@ void MainWindow::parseData(QByteArray holding, QByteArray input) {
     ui->lineEditBatteryVoltage->setText(batteryVoltage);
     ui->lineEditBatteryCapacity->setText(batterySoc);
     ui->lineEditBatteryCapacity_2->setText(batterySoc);
-    ui->lineEditChargeCurrent->setText(charging ? strFormat(batteryDisChrPower.toDouble() / batteryVoltage.toDouble()) : "0");
-    ui->lineEditDischargeCurrent->setText(charging ? "0" : strFormat(batteryDisChrPower.toDouble() / batteryVoltage.toDouble()));
+    ui->lineEditChargeCurrent->setText(charging ? strFormat(0 - rsdf(inputHalf, 77) / batteryVoltage.toDouble()) : "0");
+    ui->lineEditDischargeCurrent->setText(charging ? "0" : strFormat(rsdf(inputHalf, 77) / batteryVoltage.toDouble()));
 
     ui->lineEditPvVoltage->setText(pvVoltage);
     ui->lineEditPvChargeCurrent->setText(strFormat(pvChargePower.toDouble() / batteryVoltage.toDouble()));
@@ -488,6 +506,10 @@ void MainWindow::on_pushButtonApply_clicked()
     saveTimerInterval = (int)(ui->comboBoxRecordInterval->itemText(ui->comboBoxRecordInterval->currentIndex()).toDouble() * 60000);
     saveTimer->setInterval(saveTimerInterval);
     QString newName = ui->comboBoxPort->itemText(ui->comboBoxPort->currentIndex());
+    QFile f(Static::getSettingsPath()  + "port");
+    f.open(QIODevice::Text | QIODevice::WriteOnly);
+    f.write(newName.toLocal8Bit());
+    f.close();
     if(serial->isOpen() && QString::compare(serial->portName(), newName)) {
         serial->close();
     }
@@ -495,6 +517,7 @@ void MainWindow::on_pushButtonApply_clicked()
         if(!appenddatabaseTimer->isActive()) {
             appenddatabaseTimer->start();
         }
+        qDebug() << "Port opened";
         serial->setPortName(newName);
         serial->setBaudRate(QSerialPort::Baud9600);
         serial->setDataBits(QSerialPort::Data8);
@@ -509,11 +532,9 @@ void MainWindow::on_pushButtonApply_clicked()
     }
 }
 
-unsigned int CRC16_2(unsigned char *buf, int len)
-{
+unsigned int CRC16_2(unsigned char *buf, int len) {
   unsigned int crc = 0xFFFF;
-  for (int pos = 0; pos < len; pos++)
-  {
+  for (int pos = 0; pos < len; pos++) {
   crc ^= (unsigned int)buf[pos];    // XOR byte into least sig. byte of crc
 
   for (int i = 8; i != 0; i--) {    // Loop over each bit
@@ -699,7 +720,7 @@ void MainWindow::animationTimerEvent() {
             chargingLast = charging;
             animationCount = 0;
         }*/
-        if(systemStatus != 11) {
+        if(systemStatus != 11 || batteryDisChrPowerDouble != 0.0) {
             if(charging) {
                 switch (animationCount) {
                 case 0:
@@ -764,7 +785,9 @@ void MainWindow::animationTimerEvent() {
                 ui->pushButtonArrowPannel_1->setVisible(true);
             }
         }
-        if(systemStatus == 6 || systemStatus == 10 || systemStatus == 11 || ui->lineEditGridChargeCurrent->text().toDouble() != 0) {
+        if(systemStatus == 6 || systemStatus == 10 || systemStatus == 11 ||
+                ui->lineEditGridChargeCurrent->text().toDouble() != 0 ||
+                ui->lineEditGridInputPower->text().toDouble() != 0.0) {
             if (acDirectionOut) {
                 switch (animationCount) {
                 case 0:

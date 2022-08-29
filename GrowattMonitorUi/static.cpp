@@ -6,10 +6,14 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QThread>
 
 
 static QList<QJsonObject> Samples;
 static QString DatabasePath;
+static QString SamplePath;
+static QString SettingsPath;
+static QString LastSample;
 static int DatabaseWrites = 0;
 static int FilesSaved = 0;
 
@@ -19,6 +23,17 @@ QString Static::strFormat(double value) {
 
 void Static::setDatabasePath(QString path) { DatabasePath = path; }
 QString Static::getDatabasePath() { return DatabasePath; }
+
+void Static::setSamplePath(QString path) { SamplePath = path; }
+QString Static::getSamplePath() { return SamplePath; }
+
+void Static::setSettingsPath(QString path) { SettingsPath = path; }
+QString Static::getSettingsPath() { return SettingsPath; }
+
+void Static::setLastSample(QString sample) { LastSample = sample; }
+QString Static::getLastSample() {return LastSample; }
+
+
 
 void Static::sampleClear() { Samples.clear(); };
 void Static::sampleAppend(QString gridInputPower, QString gridChargePower, QString pvPower, QString batteryCapacity, QString outputPower,
@@ -38,6 +53,19 @@ void Static::sampleAppend(QString gridInputPower, QString gridChargePower, QStri
     obj.insert("Error", error);
     obj.insert("Warning", warning);
     Samples.append(obj);
+    QJsonArray arr;
+    arr.append(obj);
+    QJsonDocument wd(obj);
+    setLastSample(wd.toJson());
+
+    QFile file;
+    file.setFileName(Static::getSamplePath() + "sample");
+    while( !file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QThread::sleep(10);
+    }
+    file.write(getLastSample().toLocal8Bit());
+    file.flush();
+    file.close();
 }
 
 void Static::databaseAppent() {

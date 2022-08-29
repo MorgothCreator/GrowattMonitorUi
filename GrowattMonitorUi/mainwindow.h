@@ -8,6 +8,7 @@
 
 #include "about.h"
 #include "powerchart.h"
+#include "webserver.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,6 +25,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QSerialPort *serial;
+    WebServer *webServer;
     QTimer *rfshTimer;
     QTimer *saveTimer;
     QTimer *appenddatabaseTimer;
@@ -58,6 +60,7 @@ private:
     double gridInputActivePowerDouble = 0.0;
     double pvChargePowerDouble = 0.0;
     double outputActivePowerDouble = 0.0;
+    double batteryDisChrPowerDouble = 0;
     quint16 systemStatus = 0;
 
     PowerChart *chart;

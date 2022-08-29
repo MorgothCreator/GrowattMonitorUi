@@ -1,4 +1,4 @@
-QT	    += core gui charts serialport
+QT	    += core gui charts serialport network
 
 unix:!macx {
 TARGET = ../../GrowattMonitor/GrowattMonitorUI-Linux/GrowattMonitorUI-Linux
@@ -11,7 +11,7 @@ CONFIG += qt
 CONFIG += sdk_no_version_check
 DEFINES += MY_LIB_PATH=/
 MACDEPLOY = `echo $$QMAKE_QMAKE | sed 's/qmake/macdeployqt/g'`
-QMAKE_POST_LINK = $$MACDEPLOY $$OUT_PWD/$$TARGET\.app -qmldir=$$PWD -verbose=3
+# QMAKE_POST_LINK = $$MACDEPLOY $$OUT_PWD/$$TARGET\.app -qmldir=$$PWD -verbose=3
 }
 win32: {
 TARGET = ../../GrowattMonitor/GrowattMonitorUI-Windows/GrowattMonitorUI-Windows
@@ -31,13 +31,15 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     powerchart.cpp \
-    static.cpp
+    static.cpp \
+    webserver.cpp
 
 HEADERS += \
     about.h \
     mainwindow.h \
     powerchart.h \
-    static.h
+    static.h \
+    webserver.h
 
 FORMS += \
     about.ui \
